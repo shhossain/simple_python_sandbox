@@ -3,7 +3,7 @@ services:
     build: .
     container_name: safe_code_executor
     ports:
-      - "127.0.0.1:4323:4323"  # Bind only to localhost
+      - "4323:4323"
     environment:
       - PYTHONUNBUFFERED=1
       - PYTHONDONTWRITEBYTECODE=1
