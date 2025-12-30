@@ -1,0 +1,55 @@
+services:
+  code-executor:
+    build: .
+    container_name: safe_code_executor
+    ports:
+      - "127.0.0.1:4323:4323"  # Bind only to localhost
+    environment:
+      - PYTHONUNBUFFERED=1
+      - PYTHONDONTWRITEBYTECODE=1
+    
+    # Security hardening
+    security_opt:
+      - no-new-privileges:true
+      - seccomp=seccomp-profile.json  # Custom seccomp profile
+    
+    cap_drop:
+      - ALL
+    cap_add:
+      - NET_BIND_SERVICE
+    
+    # Read-only root filesystem
+    read_only: true
+    
+    # Temporary filesystem with size limit
+    tmpfs:
+      - /tmp:size=100M,mode=1777,noexec,nosuid,nodev
+    
+    # Resource limits
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
+          pids: 100
+        reservations:
+          cpus: '0.1'
+          memory: 64M
+    
+    # Network isolation
+    networks:
+      - executor_network
+    
+    # Restart policy
+    restart: unless-stopped
+    
+    # Prevent privilege escalation
+    privileged: false
+    
+    # No access to host devices
+    devices: []
+
+networks:
+  executor_network:
+    driver: bridge
+    # internal: true  # Disabled - blocks host access to container ports
